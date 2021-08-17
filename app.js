@@ -4,7 +4,6 @@ const { errors } = require('celebrate');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
 
 const { MONGO_URL } = require('./config');
 const routes = require('./routes/index');
@@ -28,7 +27,6 @@ app.use(cors(corsOptions));
 app.use(helmet());
 app.use(requestLogger);
 app.use(limiter);
-app.use(cookieParser());
 app.use(bodyParser.json());
 
 app.use(routes);

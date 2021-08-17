@@ -35,10 +35,6 @@ router.use(auth);
 router.use('/movies', movieRouter);
 router.use('/users', userRouter);
 
-router.delete('/signout', (req, res) => {
-  res.clearCookie('jwt').status(200).end();
-});
-
 router.use('/', () => {
   throw new NotFoundError('Данные не найдены');
 });

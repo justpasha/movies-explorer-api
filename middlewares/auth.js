@@ -6,13 +6,13 @@ const { JWT_SECRET } = process.env;
 const { SECRET_KEY_DEV } = require('../config');
 
 module.exports = (req, res, next) => {
-  const jwtCookie = req.cookies.jwt;
+  const { authorization } = req.headers;
 
-  if (!jwtCookie) {
+  if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new UnauthorizedError(unauthorizedErrorText);
   }
 
-  const token = jwtCookie;
+  const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {

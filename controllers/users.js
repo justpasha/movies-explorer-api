@@ -16,6 +16,17 @@ const { SECRET_KEY_DEV } = require('../config');
 
 const { JWT_SECRET } = process.env;
 
+const createToken = (userId) => {
+  const token = jwt.sign(
+    { _id: userId },
+    process.env.NODE_ENV !== 'production' ? SECRET_KEY_DEV : JWT_SECRET,
+    {
+      expiresIn: '7d',
+    }
+  );
+  return token;
+};
+
 const getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
@@ -69,9 +80,12 @@ const createUser = (req, res, next) => {
       })
     )
     .then((user) => {
-      res
-        .status(201)
-        .send({ _id: user._id, name: user.name, email: user.email });
+      res.status(201).send({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        token: createToken(user._id),
+      });
     })
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
@@ -89,21 +103,7 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        process.env.NODE_ENV !== 'production' ? SECRET_KEY_DEV : JWT_SECRET,
-        {
-          expiresIn: '7d',
-        }
-      );
-
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
-        })
-        .status(200)
-        .send({ message: 'Вы успешно авторизовались' });
+      res.status(200).send({ token: createToken(user._id) });
     })
     .catch((err) => {
       if (err.message) {
